@@ -130,7 +130,7 @@
                 telefono: form.telefono.value,
                 ticketipo: form.ticketipo.value
             };
-            db.collection('records').add(record).then(() => {
+            db.collection('reserva').add(record).then(() => {
                 alert('Registro agregado');
                 form.reset();
                 getAllRecords();
@@ -149,7 +149,7 @@
                 telefono: form.telefono.value,
                 ticketipo: form.ticketipo.value
             };
-            db.collection('records').doc(id).update(record).then(() => {
+            db.collection('reserva').doc(id).update(record).then(() => {
                 alert('Registro actualizado');
                 form.reset();
                 getAllRecords();
@@ -160,7 +160,7 @@
 
         function deleteRecord() {
             const id = prompt('Ingrese el ID del registro a borrar:');
-            db.collection('records').doc(id).delete().then(() => {
+            db.collection('reserva').doc(id).delete().then(() => {
                 alert('Registro borrado');
                 getAllRecords();
             }).catch(error => {
@@ -169,7 +169,7 @@
         }
 
         function getAllRecords() {
-            db.collection('records').get().then(querySnapshot => {
+            db.collection('reserva').get().then(querySnapshot => {
                 dataTable.innerHTML = '';
                 querySnapshot.forEach(doc => {
                     const row = dataTable.insertRow();
@@ -189,7 +189,7 @@
         }
 
         function editRecord(id) {
-            db.collection('records').doc(id).get().then(doc => {
+            db.collection('reserva').doc(id).get().then(doc => {
                 if (doc.exists) {
                     form.mesa.value = doc.data().mesa;
                     form.correo.value = doc.data().correo;
