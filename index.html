@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD con Firestore</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        input, button {
+            margin: 5px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+          apiKey: "AIzaSyA0w9N6f7OZ59P53_i9tSlcTcldhpAcP3g",
+          authDomain: "crudtest-37a69.firebaseapp.com",
+          projectId: "crudtest-37a69",
+          storageBucket: "crudtest-37a69.appspot.com",
+          messagingSenderId: "1037706355431",
+          appId: "1:1037706355431:web:a0d8942bb5d8e4a4607842",
+          measurementId: "G-F6NGQY3BKE"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+      </script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>CRUD con Firestore</h1>
+        <form id="crud-form">
+            <input type="text" id="mesa" placeholder="Mesa">
+            <input type="email" id="correo" placeholder="Correo">
+            <input type="text" id="nombre" placeholder="Nombre">
+            <input type="text" id="silla" placeholder="Silla">
+            <input type="tel" id="telefono" placeholder="Teléfono">
+            <input type="text" id="ticketipo" placeholder="Ticketipo">
+            <button type="button" onclick="addRecord()">Agregar</button>
+            <button type="button" onclick="updateRecord()">Actualizar</button>
+            <button type="button" onclick="deleteRecord()">Borrar</button>
+            <button type="button" onclick="getAllRecords()">Mostrar Todos</button>
+        </form>
+        <table id="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Mesa</th>
+                    <th>Correo</th>
+                    <th>Nombre</th>
+                    <th>Silla</th>
+                    <th>Teléfono</th>
+                    <th>Ticketipo</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Los datos se insertarán aquí -->
+            </tbody>
+        </table>
+    </div>
+    <script>
+        const form = document.getElementById('crud-form');
+        const dataTable = document.getElementById('data-table').getElementsByTagName('tbody')[0];
+
+        function addRecord() {
+            const record = {
+                mesa: form.mesa.value,
+                correo: form.correo.value,
+                nombre: form.nombre.value,
+                silla: form.silla.value,
+                telefono: form.telefono.value,
+                ticketipo: form.ticketipo.value
+            };
+            db.collection('records').add(record).then(() => {
+                alert('Registro agregado');
+                form.reset();
+                getAllRecords();
+            }).catch(error => {
+                console.error('Error adding record: ', error);
+            });
+        }
+
+        function updateRecord() {
+            const id = prompt('Ingrese el ID del registro a actualizar:');
+            const record = {
+                mesa: form.mesa.value,
+                correo: form.correo.value,
+                nombre: form.nombre.value,
+                silla: form.silla.value,
+                telefono: form.telefono.value,
+                ticketipo: form.ticketipo.value
+            };
+            db.collection('records').doc(id).update(record).then(() => {
+                alert('Registro actualizado');
+                form.reset();
+                getAllRecords();
+            }).catch(error => {
+                console.error('Error updating record: ', error);
+            });
+        }
+
+        function deleteRecord() {
+            const id = prompt('Ingrese el ID del registro a borrar:');
+            db.collection('records').doc(id).delete().then(() => {
+                alert('Registro borrado');
+                getAllRecords();
+            }).catch(error => {
+                console.error('Error deleting record: ', error);
+            });
+        }
+
+        function getAllRecords() {
+            db.collection('records').get().then(querySnapshot => {
+                dataTable.innerHTML = '';
+                querySnapshot.forEach(doc => {
+                    const row = dataTable.insertRow();
+                    row.insertCell(0).textContent = doc.id;
+                    row.insertCell(1).textContent = doc.data().mesa;
+                    row.insertCell(2).textContent = doc.data().correo;
+                    row.insertCell(3).textContent = doc.data().nombre;
+                    row.insertCell(4).textContent = doc.data().silla;
+                    row.insertCell(5).textContent = doc.data().telefono;
+                    row.insertCell(6).textContent = doc.data().ticketipo;
+                    const actionsCell = row.insertCell(7);
+                    actionsCell.innerHTML = `<button onclick="editRecord('${doc.id}')">Editar</button>`;
+                });
+            }).catch(error => {
+                console.error('Error getting records: ', error);
+            });
+        }
+
+        function editRecord(id) {
+            db.collection('records').doc(id).get().then(doc => {
+                if (doc.exists) {
+                    form.mesa.value = doc.data().mesa;
+                    form.correo.value = doc.data().correo;
+                    form.nombre.value = doc.data().nombre;
+                    form.silla.value = doc.data().silla;
+                    form.telefono.value = doc.data().telefono;
+                    form.ticketipo.value = doc.data().ticketipo;
+                } else {
+                    alert('No se encontró el registro');
+                }
+            }).catch(error => {
+                console.error('Error getting record: ', error);
+            });
+        }
+    </script>
+</body>
+</html>
